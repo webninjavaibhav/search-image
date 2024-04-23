@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -7,7 +8,8 @@ export default function Home() {
   const [file, setFile] = useState<any>(null);
   const [temporaryImageURL, setTemporaryImagURL] = useState<any>();
   const [error, setError] = useState<string>("");
-
+  const [searchedProduct, setSearchedProduct] = useState<any>();
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
   function generateTemporaryUrl(file: any) {
     return new Promise((resolve, reject) => {
       if (!file) {
@@ -44,23 +46,24 @@ export default function Home() {
     setTemporaryImagURL(imageUrl);
   };
 
-  const handleFormSubmit = async (event: any) => {
-    event.preventDefault();
-
+  const searchImageHandler = async (event: any) => {
+    setSearchLoading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("url", temporaryImageURL);
-      fetch("/api/search-product", {
+      const response = await fetch("/api/search-product", {
         method: "POST",
         body: formData,
-      }).then((res) => {
-        console.log("res", res);
-        setTemporaryImagURL(undefined);
-        setFile("");
       });
+      const result = await response.json();
+      setSearchedProduct(result.product?.[0]);
     } catch (error) {
       console.error("Error uploading image:", error);
+    } finally {
+      setSearchLoading(false);
+      setFile("");
+      setTemporaryImagURL(undefined);
     }
   };
 
@@ -68,42 +71,113 @@ export default function Home() {
     getProducts();
   }, []);
 
-  console.log("productList", productList);
-  // return (
-  //   <form onSubmit={handleFormSubmit}>
-  //     <input
-  //       type="file"
-  //       accept="image/*"
-  //       onChange={handleFileChange}
-  //     />
-  //     <button type="submit">Upload Image</button>
-  //   </form>
-  // );
-
   return (
-    <div>
-      <h1>Home Page</h1>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-      <button onClick={handleFormSubmit}>Upload Image</button>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
-        {[1, 2, 3, 4].map((image, index) => (
+    <div
+      style={{ display: "flex", flexDirection: "column", padding: 50, gap: 10 }}
+    >
+      <h1>Search By Image</h1>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div>
           <div
-            key={index}
-            style={{ width: "33.33%", padding: "5px" }}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: 10,
+              border: "2px solid black",
+              borderRadius: "10px",
+            }}
           >
-            {/* <img
-              src={image}
-              alt={`Image ${index}`}
-              style={{ width: "100%", height: "auto" }}
-            /> */}
-            {image}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            <button
+              onClick={searchImageHandler}
+              style={{
+                display: "flex",
+                border: "0.5px solid black",
+                borderRadius: "5px",
+              }}
+            >
+              Search
+            </button>
           </div>
-        ))}
+        </div>
+        <div
+          style={{
+            display: "grid",
+            placeContent: "center",
+            padding: 5,
+            gap: 10,
+            border: "1px solid black",
+            borderRadius: "10px",
+          }}
+        >
+          {searchedProduct ? (
+            <>
+              <div style={{ fontSize: "20px" }}>
+                The searched image is similar to{" "}
+                {searchedProduct?.name?.split(".")[0]}
+              </div>
+              <Image
+                src={searchedProduct?.url}
+                alt={"product-img"}
+                width={250}
+                height={400}
+              />
+            </>
+          ) : searchLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <div>Search Result will be shown here</div>
+          )}
+        </div>
       </div>
+      <h3>List of Products</h3>
+      {productList?.length ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 1fr",
+            padding: 20,
+            gap: 10,
+            border: "0.5px solid black",
+            borderRadius: "5px",
+          }}
+        >
+          {productList?.map((product: any) => (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                border: "1px solid black",
+              }}
+            >
+              <div
+                key={product?._id}
+                style={{
+                  display: "grid",
+                  placeContent: "center",
+                  padding: 5,
+                  borderBottom: "1px solid black",
+                  gap: 10,
+                }}
+              >
+                <Image
+                  src={product?.url}
+                  alt={"product-img"}
+                  width={250}
+                  height={400}
+                />
+              </div>
+              <div style={{ padding: 10, background: "#FFE6D0" }}>
+                {product?.name?.split(".")[0]}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

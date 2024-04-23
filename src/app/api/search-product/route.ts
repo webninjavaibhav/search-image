@@ -13,8 +13,6 @@ export async function POST(request: NextRequest) {
     const data = await request.formData();
     const imageUrl: any = data.get("url");
 
-    console.log("image", imageUrl);
-
     const input = {
       input: imageUrl,
     };
@@ -23,16 +21,6 @@ export async function POST(request: NextRequest) {
     const output = await replicate.run(process.env.REPLICATE_EMBEDDED_KEY, {
       input,
     });
-    console.log("output", output);
-
-    //Create product logic
-
-    // const createProduct = new Product({
-    //   name: fileName,
-    //   url: imageUrl,
-    //   embadding: output,
-    // });
-    // await createProduct.save();
 
     const searchRes = await Product.aggregate([
       {
@@ -47,14 +35,11 @@ export async function POST(request: NextRequest) {
       },
     ]);
     if (searchRes) {
-      console.log("Product found:", searchRes);
       return NextResponse.json({ product: searchRes });
     } else {
-      console.log("Product not found");
       return NextResponse.json({ message: "No data found" });
     }
   } catch (err) {
-    console.log("err", err);
     return NextResponse.json({ message: "Something went wrong" });
   }
 }

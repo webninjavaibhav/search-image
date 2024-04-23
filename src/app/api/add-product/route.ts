@@ -19,7 +19,6 @@ export async function POST(request: Request) {
     const output = await replicate.run(process.env.REPLICATE_EMBEDDED_KEY, {
       input,
     });
-    console.log("output", output);
     const createProduct = new Product({
       name: fileName,
       url: imageUrl,

@@ -18,9 +18,7 @@ export const uploadFileToS3 = async (file, fileName) => {
     };
     await s3.upload(params).promise();
     return `${process.env.AWS_CLOUDFRONT}/${fileName}`;
-  } catch (err) {
-    console.log("uploadFileToS3-error", err);
-  }
+  } catch (err) {}
 };
 
 export const getFileFromS3 = async (fileName) => {
@@ -33,7 +31,6 @@ export const getFileFromS3 = async (fileName) => {
     const result = await s3.getObject(params).promise();
     return result.Body;
   } catch (error) {
-    console.error("Error getting file from S3:", error);
     return null;
   }
 };
