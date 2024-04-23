@@ -76,66 +76,70 @@ export default function Home() {
       style={{ display: "flex", flexDirection: "column", padding: 50, gap: 10 }}
     >
       <h1>Search By Image</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <div>
-          <div
+      <div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: 10,
+            border: "2px solid black",
+            borderRadius: "10px",
+          }}
+        >
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          <button
+            onClick={searchImageHandler}
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              padding: 10,
-              border: "2px solid black",
-              borderRadius: "10px",
+              border: "0.5px solid black",
+              borderRadius: "5px",
             }}
           >
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-            <button
-              onClick={searchImageHandler}
-              style={{
-                display: "flex",
-                border: "0.5px solid black",
-                borderRadius: "5px",
-              }}
-            >
-              Search
-            </button>
-          </div>
+            Search
+          </button>
         </div>
+      </div>
+      <h3>List of Products</h3>
+      {searchedProduct ? (
         <div
           style={{
             display: "grid",
-            placeContent: "center",
+            flexDirection: "column",
             padding: 5,
             gap: 10,
             border: "1px solid black",
             borderRadius: "10px",
+            width: "35%",
+            placeContent: "center",
           }}
         >
-          {searchedProduct ? (
-            <>
-              <div style={{ fontSize: "20px" }}>
-                The searched image is similar to{" "}
-                {searchedProduct?.name?.split(".")[0]}
-              </div>
-              <Image
-                src={searchedProduct?.url}
-                alt={"product-img"}
-                width={250}
-                height={400}
-              />
-            </>
-          ) : searchLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <div>Search Result will be shown here</div>
-          )}
+          <div style={{ fontSize: "20px" }}>
+            The searched image is similar to{" "}
+            {searchedProduct?.name?.split(".")[0]}
+          </div>
+          <div
+            style={{
+              display: "grid",
+              placeContent: "center",
+              padding: 5,
+              gap: 10,
+            }}
+          >
+            <Image
+              src={searchedProduct?.url}
+              alt={"product-img"}
+              width={250}
+              height={400}
+            />
+          </div>
         </div>
-      </div>
-      <h3>List of Products</h3>
-      {productList?.length ? (
+      ) : searchLoading ? (
+        <div>Loading...</div>
+      ) : productList?.length ? (
         <div
           style={{
             display: "grid",
@@ -152,7 +156,9 @@ export default function Home() {
                 display: "flex",
                 flexDirection: "column",
                 border: "1px solid black",
+                borderRadius: "3px",
               }}
+              key={product?._id}
             >
               <div
                 key={product?._id}
