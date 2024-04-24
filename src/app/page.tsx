@@ -10,7 +10,6 @@ import { Button } from "@mui/material";
 export default function Home() {
   const [productList, setProductsList] = useState<any>([]);
   const [file, setFile] = useState<any>(null);
-  const [temporaryImageURL, setTemporaryImagURL] = useState<any>();
   const [error, setError] = useState<string>("");
   const [searchedProduct, setSearchedProduct] = useState<any>();
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
@@ -35,19 +34,22 @@ export default function Home() {
     });
   }
 
+  const reset = async () => {
+    setSearchedProduct(undefined);
+    getProducts();
+  };
+
   const getProducts = async () => {
+    setSearchLoading(true);
     try {
       const response = await fetch("/api/get-products");
       const resultantData = await response.json();
       setProductsList(resultantData?.data);
     } catch (err) {
       setError("Failed to get products, please try again");
+    } finally {
+      setSearchLoading(false);
     }
-  };
-  const handleFileChange = async (event: any) => {
-    setFile(event.target.files[0]);
-    const imageUrl = await generateTemporaryUrl(event.target.files[0]);
-    setTemporaryImagURL(imageUrl);
   };
 
   const searchImageHandler = async (event: any) => {
@@ -65,10 +67,10 @@ export default function Home() {
       setSearchedProduct(result.product?.[0]);
     } catch (error) {
       console.error("Error uploading image:", error);
+      setError("Something went wrong");
     } finally {
       setSearchLoading(false);
       setFile("");
-      setTemporaryImagURL(undefined);
     }
   };
 
@@ -86,23 +88,35 @@ export default function Home() {
           placeholder="Search..."
         />
         <div>
-          <label
-            htmlFor="file-upload"
-            className="custom-file-upload"
-          >
-            <Image
-              src={ImageIcon}
-              alt={"image-icon"}
-              width={40}
-              height={40}
-            />
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/*"
-            onChange={searchImageHandler}
-          />
+          {searchedProduct ? (
+            <Button
+              variant="contained"
+              onClick={reset}
+              className="p-2 btn cursor-pointer flex items-center gap-1 min-w-[70px]"
+            >
+              Refresh
+            </Button>
+          ) : (
+            <>
+              <label
+                htmlFor="file-upload"
+                className="custom-file-upload"
+              >
+                <Image
+                  src={ImageIcon}
+                  alt={"image-icon"}
+                  width={40}
+                  height={40}
+                />
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={searchImageHandler}
+              />
+            </>
+          )}
         </div>
       </div>
       {searchedProduct ? (

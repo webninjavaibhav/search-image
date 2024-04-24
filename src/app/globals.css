@@ -6,6 +6,10 @@ input[type="file"] {
   display: none;
 }
 
+.btn {
+  background-color: #f3b37c !important;
+}
+
 @keyframes spin-anim {
   0% {
     transform: rotate(0deg);
