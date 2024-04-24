@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
           //@ts-ignore
           queryVector: output,
           numCandidates: 1024,
-          limit: 1,
+          limit: 5,
         },
       },
     ]);
